@@ -18,7 +18,19 @@ export default function authReducer(state=initialState, action) {
             }
         case "SIGNOUT_SUCCESS":
             console.log('logout success')
-            return state
+            return state;
+        case 'REGISTER_SUCCESS':
+            console.log('register success')
+            return{
+                ...state,
+                authError: null
+            }
+        case 'REGISTER_ERROR':
+            console.log('register error')
+            return{
+                ...state,
+                authError: action.err.message
+            }
         default:
             return state;
     }

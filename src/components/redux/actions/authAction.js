@@ -22,3 +22,24 @@ export const logOut = () => {
         })
     }
 }
+
+export const register = (newUser) => {
+    return (dispatch, getState, {getFirebase, getFirestore}) => {
+        const firebase = getFirebase();
+        const firestore = getFirestore();
+        firebase.auth().createUserWithEmailAndPassword(
+            newUser.email,
+            newUser.password
+        ).then((res) => {
+            return firestore.collection('users').add().doc(res.user.uid).set({
+                firstName: newUser.firstName,
+                lastName: newUser.lastName,
+                initials: newUser.firstName[0] + newUser.lastName[0]
+            })
+        }).then(() => {
+            dispatch({type: 'REGISTER_SUCCESS'})
+        }).catch(err => {
+            dispatch({type: 'REGISTER_ERROR', err})
+        })
+    }
+}
