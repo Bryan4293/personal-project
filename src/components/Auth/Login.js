@@ -58,7 +58,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        login : (creds) => dispatch(login(creds))
+        login : (cred) => dispatch(login(cred))
     }
 }
 

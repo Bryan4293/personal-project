@@ -18,7 +18,7 @@ export const logOut = () => {
         const firebase = getFirebase();
 
         firebase.auth().signOut().then(() => {
-            dispatch({ type : 'SIGNOUT_SUCCESS'})
+            dispatch({ type : 'LOGOUT_SUCCESS'})
         })
     }
 }
@@ -30,8 +30,8 @@ export const register = (newUser) => {
         firebase.auth().createUserWithEmailAndPassword(
             newUser.email,
             newUser.password
-        ).then((res) => {
-            return firestore.collection('users').add().doc(res.user.uid).set({
+        ).then((resp) => {
+            return firestore.collection('users').doc(resp.user.uid).set({
                 firstName: newUser.firstName,
                 lastName: newUser.lastName,
                 initials: newUser.firstName[0] + newUser.lastName[0]

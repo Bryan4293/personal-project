@@ -9,6 +9,6 @@ export default createStore(rootReducer,
     compose(
     applyMiddleware(thunk.withExtraArgument({getFirebase, getFirestore})),
     reduxFirestore(fb),
-    reactReduxFirebase(fb, {attachAuthIsReady: true})
+    reactReduxFirebase(fb, {useFirestoreForProfile: true, userProfile: 'users',attachAuthIsReady: true})
     )
 );

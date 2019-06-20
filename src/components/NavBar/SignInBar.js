@@ -8,7 +8,7 @@ const SignInBar = (props) =>{
         <ul className="right">
             <li><NavLink to="/video">Video Producer</NavLink></li>
             <li><a onClick={props.logOut}>Log Out</a></li>
-            <li><NavLink to="/" className="btn btn-floating blue lighten-1" >BB</NavLink></li>
+            <li><NavLink to="/" className="btn btn-floating blue lighten-1" >{props.profile.initials}</NavLink></li>
         </ul>
     )
 }
