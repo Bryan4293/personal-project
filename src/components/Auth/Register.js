@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {connect} from "react-redux";
 import {register} from "../redux/actions/authAction"
+import {Redirect} from 'react-router-dom'
 
 class Register extends Component {
     constructor(props){
@@ -27,7 +28,8 @@ class Register extends Component {
     }
 
     render() {
-        const {authError} = this.props
+        const {authError, auth} = this.props
+        if(auth.uid) return <Redirect to='/dashboard'/>
         return (
             <div className='container'>
                 <form onSubmit={this.handleSubmit} className='white'>
