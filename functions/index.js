@@ -1,23 +1,23 @@
+require('dotenv').config()
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const express = require('express');
 const firebase = require('firebase')
 const app = express();
+const {API_KEY, AUTH_DOMAIN, DATABASE_URL, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID, APP_ID}=process.env
 
 admin.initializeApp();
 
 
-const firebaseConfig = {
-    apiKey: "AIzaSyCDunNMgpnDpJSya8G1UX4viiYddOJm17Q",
-    authDomain: "peasonal-project.firebaseapp.com",
-    databaseURL: "https://peasonal-project.firebaseio.com",
-    projectId: "peasonal-project",
-    storageBucket: "peasonal-project.appspot.com",
-    messagingSenderId: "862816420045",
-    appId: "1:862816420045:web:abce19922bdea87f"
-  };
-
-  firebase.initializeApp(firebaseConfig)
+  firebase.initializeApp({
+    apiKey: API_KEY,
+    authDomain: AUTH_DOMAIN,
+    databaseURL: DATABASE_URL,
+    projectId: PROJECT_ID,
+    storageBucket: STORAGE_BUCKET,
+    messagingSenderId: MESSAGING_SENDER_ID,
+    appId: APP_ID
+  })
 
 
   app.get('/vidFeeds', (req,res) =>{
