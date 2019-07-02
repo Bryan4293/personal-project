@@ -23,6 +23,8 @@ export const logOut = () => {
     }
 }
 
+
+
 export const register = (newUser) => {
     return (dispatch, getState, {getFirebase, getFirestore}) => {
         const firebase = getFirebase();

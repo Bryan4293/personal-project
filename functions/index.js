@@ -1,62 +1,100 @@
-require('dotenv').config()
 const functions = require('firebase-functions');
-const admin = require('firebase-admin');
 const express = require('express');
-const firebase = require('firebase')
 const app = express();
-const {API_KEY, AUTH_DOMAIN, DATABASE_URL, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID, APP_ID}=process.env
 
-admin.initializeApp();
+const {getAllVidFeeds, postVidFeed, getVidFeed, commentOnVid, viewerVidFeed, deleteVidFeed} = require('./handlers/vidFeeds');
+const {uploadImage, uploadVideo, register, login, addUserDetails, getAuthUser, getUserDetails, markNotificationsRead} = require('./handlers/users');
+const FBAuth = require('./utility/FBAuth');
 
-
-  firebase.initializeApp({
-    apiKey: API_KEY,
-    authDomain: AUTH_DOMAIN,
-    databaseURL: DATABASE_URL,
-    projectId: PROJECT_ID,
-    storageBucket: STORAGE_BUCKET,
-    messagingSenderId: MESSAGING_SENDER_ID,
-    appId: APP_ID
-  })
+const {db} = require('./utility/admin')
 
 
-  app.get('/vidFeeds', (req,res) =>{
-    admin.firestore()
-    .collection('VidFeeds')
-    .orderBy('createAt', 'desc')
-    .get()
-    .then(data =>{
-        let vidFeeds =[]
-        data.forEach(doc =>{
-            vidFeeds.push({
-                vidFeedId: doc.id,
-                body: doc.data().body,
-                userHandle: doc.data().userHandle,
-                createAt: doc.data().createAt
-            });
-        });
-        return res.json(vidFeeds);
-    })
-    .catch((err) => console.error(err));
-});
+//Video Feed
+app.get('/vidFeeds', getAllVidFeeds);
+app.post('/vidFeed', FBAuth, postVidFeed);
+app.get('/vidFeed/:vidFeedId', getVidFeed)
+app.post('/vidFeed/:vidFeedId/comment', FBAuth, commentOnVid)
+app.put('/vidFeed/:vidFeedId/viewer', FBAuth, viewerVidFeed)
+app.delete('/vidFeed/:vidFeedId', FBAuth, deleteVidFeed)
 
-app.post('/vidFeed',(req, res) =>{
-    const newVidFeed = {
-        body : req.body.body,
-        userHandle : req.body.userHandle,
-        createAt : new Date().toISOString()
-    };
+// User Profile 
+app.post('/user/image', FBAuth, uploadImage);
+app.post('/user/video', FBAuth, uploadVideo)
+app.post('/user', FBAuth, addUserDetails);
+app.get('/user', FBAuth, getAuthUser);
+app.get('/user/:handle', getUserDetails)
+app.post('/notifications', FBAuth, markNotificationsRead)
 
-    admin.firestore()
-        .collection('VidFeeds')
-        .add(newVidFeed)
-        .then(doc => {
-            res.json({message : `document ${doc.id} created successfully`})
-        })
-        .catch(err => {
-            res.status(500).json({error: 'monkaS Do not panic! Something is wrong!'});
-            console.error(err);
-        });
-});
+
+//AuthUsers route
+app.post('/register', register);
+app.post('/login', login);
+
 
 exports.api = functions.https.onRequest(app);
+
+exports.createNotificationOnViewer = functions.region('us-central1').firestore.document('viewer/{id}')
+    .onCreate((snapshot)=>{
+       return db.doc(`/VidFeeds/${snapshot.data().vidFeedId}`).get()
+            .then(doc => {
+                if(doc.exists && doc.data(userHandle !== snapshot.data().userHandle)){
+                    return db.doc(`/notifications/${snapshot.id}`).set({
+                        createAt: new Date().toISOString(),
+                        recipient: doc.data().userHandle,
+                        sender:snapshot.data().userHandle,
+                        type: 'like',
+                        read: false,
+                        vidFeedId: doc.id
+                    })
+                }
+            })
+            .catch(err =>{
+                console.error(err)
+            })
+    })
+
+exports.createNotificationOnComment = functions.region('us-central1').firestore.document('comments/{id}')
+    .onCreate((snapshot)=>{
+       return db.doc(`/VidFeeds/${snapshot.data().vidFeedId}`).get()
+            .then(doc => {
+                if(doc.exists && doc.data(userHandle !== snapshot.data().userHandle)){
+                    return db.doc(`/notifications/${snapshot.id}`).set({
+                        createAt: new Date().toISOString(),
+                        recipient: doc.data().userHandle,
+                        sender:snapshot.data().userHandle,
+                        type: 'comment',
+                        read: false,
+                        vidFeedId: doc.id
+                    })
+                }
+            })
+            .catch(err =>{
+                console.error(err)
+            })
+    })
+exports.onVidFeedDelete = functions.region('us-central1')
+    .firestore.document('/VidFeeds/{vidFeedId}')
+    .onDelete((snapshot, context) =>{
+        const vidFeedId = context.params.vidFeedId;
+        const batch= db.batch();
+        return db.collection('comments').where('vidFeedId', '==', vidFeedId).get()
+            .then(data =>{
+                data.forEach(doc =>{
+                    batch.delete(db.doc(`/comments/${doc.id}`));
+                })
+                return db.collection('viewer').where('vidFeedId', '==', vidFeedId).get();
+            })
+            .then(data =>{
+                data.forEach(doc =>{
+                    batch.delete(db.doc(`/viewer/${doc.id}`));
+                })
+                return db.collection('notifications').where('vidFeedId', '==', vidFeedId).get();
+            })
+            .then(data =>{
+                data.forEach(doc =>{
+                    batch.delete(db.doc(`/notifications/${doc.id}`));
+                });
+                return batch.commit();
+            })
+            .catch(err => console.error(err));
+    })
