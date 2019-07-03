@@ -30,6 +30,14 @@ export default function(state = initialState, action){
             return{
                 ...state
             }
+        case "POST_VID_FEED":
+            return{
+                ...state,
+                vidFeeds : [
+                    action.payload,
+                    ...state.vidFeeds
+                ]
+            }
         default:
             return state
     }

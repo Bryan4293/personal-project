@@ -4,6 +4,7 @@ import {compose} from 'redux'
 import {Redirect} from 'react-router-dom'
 import axios from 'axios';
 import PropTypes from 'prop-types'
+import PostVidFeed from "./PostVidFeed"
 
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
@@ -35,6 +36,7 @@ class VideoProducer extends Component {
                 <div>
                 <input type="file" id="videoInput" onChange={this.handleVideoChange}></input>
                 </div>
+                <PostVidFeed/>
                 <Grid item sm={8} xs={12}>
                     {vidFeedMark}
                 </Grid>

@@ -16,6 +16,25 @@ export const getAllVidFeeds =() => dispatch => {
             })
         })
 }
+
+export const postVidFeed = (newVidFeed) => (dispatch)=>{
+    dispatch({ type: "LOADING_UI"})
+    axios.post('/vidFeed', newVidFeed)
+        .then(res =>{
+            dispatch({
+                type: "POST_VID_FEED",
+                payload: res.data
+            })
+            dispatch({ type: "CLEAR_ERRORS"})
+        })
+        .catch(err =>{
+            dispatch({
+                type: "SET_ERRORS",
+                payload: err.response.data
+            })
+        })
+}
+
 export const viewerVidFeed = (vidFeedId) => dispatch =>{
     axios.get(`/vidFeed/${vidFeedId}/viewer`)
         .then(res =>{
