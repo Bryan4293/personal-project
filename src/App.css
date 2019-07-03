@@ -1,0 +1,26 @@
+body{
+    background-color:  rgb(245,245,245);
+}
+.background{
+    width: 100vw;
+    height: 100vh;
+    background: url(https://media.giphy.com/media/3o7bu1q3t5sg5elnt6/giphy.gif);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.overlay{
+    width: 100vw;
+    height: 100vh;
+    background: rgba(136, 9, 221, 0.671);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.nav-wrapper{
+    width: 100%;
+    margin: 0;
+    position:static;
+}
+MyButton{
+    padding : 0;
+}

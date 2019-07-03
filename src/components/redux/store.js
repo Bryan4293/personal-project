@@ -5,10 +5,10 @@ import {getFirestore, reduxFirestore} from 'redux-firestore';
 import {getFirebase, reactReduxFirebase} from 'react-redux-firebase';
 import fb from '../../config/Firebase'
 
-export default createStore(rootReducer,
-    compose(
-    applyMiddleware(thunk.withExtraArgument({getFirebase, getFirestore})),
-    reduxFirestore(fb),
-    reactReduxFirebase(fb, {useFirestoreForProfile: true, userProfile: 'users',attachAuthIsReady: true})
-    )
-);
+const initialState = {}
+
+const middleWare = [thunk]
+
+export default createStore(rootReducer,initialState,
+    compose(applyMiddleware(...middleWare),
+    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()))

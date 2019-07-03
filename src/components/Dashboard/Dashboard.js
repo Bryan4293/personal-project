@@ -6,8 +6,8 @@ import {Redirect} from 'react-router-dom'
 
 class Dashboard extends Component {
     render() {
-        const{auth} =this.props;
-        if(!auth.uid) return <Redirect to='/login'/>
+        // const{auth} =this.props;
+        // if(!auth.uid) return <Redirect to='/login'/>
         return (
             <div className="row">
                 <iframe
@@ -29,10 +29,10 @@ class Dashboard extends Component {
         )
     }
 }
-const mapStateToProps = (state) => {
-    return{
-        auth: state.firebase.auth
-    }
-}
+// const mapStateToProps = (state) => {
+//     return{
+//         auth: state.firebase.auth
+//     }
+// }
 
-export default compose(connect(mapStateToProps))(Dashboard)
+export default Dashboard

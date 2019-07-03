@@ -1,17 +1,29 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
-import {login} from '../redux/actions/authAction'
-import {Redirect} from 'react-router-dom'
+import {loginUser} from '../redux/actions/userAction'
+import PropTypes from 'prop-types';
+import {Redirect} from 'react-router-dom';
+
+
 
 class Login extends Component {
     constructor(props){
         super(props)
         this.state ={
             email: "",
-            password: ""
+            password: "",
+            errors: {}
         }
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
+    }
+
+    componentWillReceiveProps(nextProps){
+        if (nextProps.UI.errors){
+            this.setState({
+                errors: nextProps.UI.errors
+            })
+        }
     }
     
     handleChange = (e) => {
@@ -22,14 +34,19 @@ class Login extends Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        this.props.login(this.state)
+        const userData = {
+            email: this.state.email,
+            password: this.state.password
+        }
+        this.props.loginUser(userData, this.props.history)
     }
 
     render() {
-        const {authError, auth} = this.props;
-        if(auth.uid) return <Redirect to='/dashboard'/>
+        // const {authError, auth} = this.props;
+        // if(auth.uid) return <Redirect to='/dashboard'/>
+        const {classes, UI: {loading}} = this.props
         return (
-            <div className="container">
+            <div className="container" id="login-form">
                 <form onSubmit={this.handleSubmit} className="white">
                     <h5 className="grey-text text darken-3">Log in</h5>
                     <div className="input-field">
@@ -43,7 +60,7 @@ class Login extends Component {
                     <div className='input-field'>
                         <button className="btn purple lighten 1 z-depth-0">Login</button>
                         <div className="red-text center">
-                            { authError ? <p>{authError}</p> : null}
+                            {/* { authError ? <p>{authError}</p> : null} */}
                         </div>
                     </div>
                 </form>
@@ -52,20 +69,25 @@ class Login extends Component {
     }
 }
 
+Login.propTypes ={
+    // classes: PropTypes.object.isRequired,
+    loginUser: PropTypes.func.isRequired,
+    user: PropTypes.object.isRequired,
+    UI: PropTypes.object.isRequired
+}
+
 const mapStateToProps = (state) => {
     return{
-        authError: state.auth.authError,
-        auth: state.firebase.auth
+        user: state.user,
+        UI: state.UI
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        login : (cred) => dispatch(login(cred))
-    }
+const mapActionsToProps = {
+   loginUser
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login)
+export default connect(mapStateToProps, mapActionsToProps)(Login)
 
 
 

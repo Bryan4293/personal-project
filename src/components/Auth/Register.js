@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import {connect} from "react-redux";
-import {register} from "../redux/actions/authAction"
-import {Redirect} from 'react-router-dom'
+import {registerUser} from "../redux/actions/userAction"
+import {Redirect} from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 class Register extends Component {
     constructor(props){
@@ -9,11 +10,19 @@ class Register extends Component {
         this.state ={
             email: "",
             password:'',
-            firstName:'',
-            lastName: '',
+            handle:'',
+            errors: {}
         }
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
+    }
+
+    componentWillReceiveProps(nextProps){
+        if (nextProps.UI.errors){
+            this.setState({
+                errors: nextProps.UI.errors
+            })
+        }
     }
 
     handleChange = (e) => {
@@ -22,14 +31,22 @@ class Register extends Component {
         })
     }
 
-    handleSubmit = (e) =>{
+    handleSubmit = (e) => {
         e.preventDefault();
-        this.props.register(this.state)
+        this.setState({
+            loading:true
+        });
+        const newUserData = {
+            email: this.state.email,
+            password: this.state.password,
+            handle:this.state.handle
+        }
+        this.props.registerUser(newUserData, this.props.history)
     }
 
     render() {
-        const {authError, auth} = this.props
-        if(auth.uid) return <Redirect to='/dashboard'/>
+        // const {authError, auth} = this.props
+        // if(auth.uid) return <Redirect to='/dashboard'/>
         return (
             <div className='container'>
                 <form onSubmit={this.handleSubmit} className='white'>
@@ -43,17 +60,21 @@ class Register extends Component {
                         <input type="password" id='password' onChange={this.handleChange}/>
                     </div>
                     <div className='input-field'>
+                        <label htmlFor="handle">Username</label>
+                        <input type="text" id='handle' onChange={this.handleChange}/>
+                    </div>
+                    {/* <div className='input-field'>
                         <label htmlFor="firstName">First Name</label>
                         <input type="text" id="firstName" onChange={this.handleChange}/>
                     </div>
                     <div className='input-field'>
                         <label htmlFor="lastName">Last Name</label>
                         <input type='text' id='lastName' onChange={this.handleChange}/>
-                    </div>
+                    </div> */}
                     <div className= "input-field">
                         <button className="btn purple lighten 1 z-depth-0">Register</button>
                         <div className="red-text center">
-                            { authError ? <p>{authError}</p> : null}
+                            {/* { authError ? <p>{authError}</p> : null} */}
                         </div>
                     </div>
                 </form>
@@ -62,17 +83,18 @@ class Register extends Component {
     }
 }
 
+Register.propTypes ={
+    user: PropTypes.object.isRequired,
+    UI:PropTypes.object.isRequired
+}
+
 const mapStateToProps = (state) => {
     return{
-        auth: state.firebase.auth,
-        authError: state.auth.authError
+        user: state.user,
+        UI: state.UI
     }
 }
 
-const mapDispatchToProps = (dispatch) =>{
-    return {
-        register: (newUser) => dispatch(register(newUser))
-    }
-}
 
-export default connect(mapStateToProps, mapDispatchToProps)(Register)
+
+export default connect(mapStateToProps, {registerUser})(Register)
