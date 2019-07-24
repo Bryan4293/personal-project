@@ -1,7 +1,7 @@
 const functions = require('firebase-functions');
 const express = require('express');
 const app = express();
-
+app.use( express.static( `${__dirname}/../build` ) );
 const {getAllVidFeeds, postVidFeed, getVidFeed, commentOnVid, viewerVidFeed, deleteVidFeed} = require('./handlers/vidFeeds');
 const {uploadImage, uploadVideo, register, login, addUserDetails, getAuthUser, getUserDetails, markNotificationsRead} = require('./handlers/users');
 const FBAuth = require('./utility/FBAuth');
